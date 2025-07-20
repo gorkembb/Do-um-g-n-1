@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Doğum Günü Kutlaması</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+  body {
+    background: #111;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .flame-text {
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: black;
+    -webkit-text-stroke: 2.5px black;
+    text-stroke: 2.5px black;
+    background: linear-gradient(45deg, #ff3e00, #ffeb3b, #ff3e00);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: flicker 1.5s infinite alternate;
+    user-select: none;
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  @keyframes flicker {
+    0%   { filter: drop-shadow(0 0 6px #ff3e00) drop-shadow(0 0 10px #ffeb3b);}
+    50%  { filter: drop-shadow(0 0 12px #ff4f12) drop-shadow(0 0 20px #fff176);}
+    100% { filter: drop-shadow(0 0 6px #ff3e00) drop-shadow(0 0 10px #ffeb3b);}
+  }
+
+  #btn {
+    position: absolute;
+    padding: 18px 44px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: #b30000;
+    border: none;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 0 10px #b30000;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  #btn:hover:not(:disabled) {
+    background: #ff0000;
+    box-shadow: 0 0 20px #ff0000;
+  }
+  #btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+    box-shadow: none;
+  }
+
+  #kanyeImg {
+    display: none;
+    max-width: 320px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 4px solid #b30000;
+    border-radius: 15px;
+    box-shadow: 0 0 30px #b30000;
+    z-index: 10;
+  }
+
+  #confetti-wrapper {
+    pointer-events: none;
+    position: fixed;
+    top:0; left:0;
+    width: 100vw;
+    height: 100vh;
+    overflow: visible;
+    z-index: 20;
+  }
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0000;
+    opacity: 0.9;
+    will-change: transform, opacity;
+    border-radius: 2px;
+  }
+
+  /* Kıvılcım konteyner */
+  #sparks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 30;
+  }
+
+  .spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, #ffea00, #ff3e00);
+    border-radius: 50%;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 4px #ffea00);
+    animation: sparkMove 1s forwards;
+    pointer-events: none;
+  }
+
+  @keyframes sparkMove {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate(var(--x), var(--y)) scale(0);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="flame-text" id="flameText">İYİ Kİ DOĞDUN ZEYNEP</div>
+
+<button id="btn">Buraya Aban</button>
+
+<img id="kanyeImg" src="https://i.imgur.com/16wFJvS.jpg" alt="Kanye West" />
+
+<div id="confetti-wrapper"></div>
+<div id="sparks"></div>
+
+<script>
+  const btn = document.getElementById('btn')
+  const img = document.getElementById('kanyeImg')
+  const confettiWrapper = document.getElementById('confetti-wrapper')
+  const sparksContainer = document.getElementById('sparks')
+  const flameText = document.getElementById('flameText')
+  let count = 0
+
+  function createConfettiPiece() {
+    const confetti = document.createElement('div')
+    confetti.classList.add('confetti')
+    confetti.style.backgroundColor = '#ff0000'
+    confetti.style.left = Math.random() * window.innerWidth + 'px'
+    confetti.style.top = '-10px'
+    confetti.style.width = (6 + Math.random() * 10) + 'px'
+    confetti.style.height = confetti.style.width
+    confettiWrapper.appendChild(confetti)
+
+    let fallDuration = 3000 + Math.random() * 2000
+
+    confetti.animate([
+      { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+      { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+    ], {
+      duration: fallDuration,
+      easing: 'ease-out',
+      fill: 'forwards'
+    })
+
+    setTimeout(() => {
+      confetti.remove()
+    }, fallDuration)
+  }
+
+  function launchConfetti() {
+    const count = 100
+    for(let i = 0; i < count; i++) {
+      setTimeout(createConfettiPiece, i * 20)
+    }
+  }
+
+  function createSpark() {
+    const spark = document.createElement('div')
+    spark.classList.add('spark')
+
+    // Pozisyonu yazının sağ üst köşesine yakın yapalım
+    const rect = flameText.getBoundingClientRect()
+    const x = rect.right - 20 + (Math.random() * 20 - 10)
+    const y = rect.top + Math.random() * 20
+
+    spark.style.left = x + 'px'
+    spark.style.top = y + 'px'
+
+    // Rasgele hareket
+    const moveX = (Math.random() * 50 + 20) * (Math.random() < 0.5 ? -1 : 1)
+    const moveY = - (Math.random() * 70 + 30)
+
+    spark.style.setProperty('--x', moveX + 'px')
+    spark.style.setProperty('--y', moveY + 'px')
+
+    sparksContainer.appendChild(spark)
+
+    spark.addEventListener('animationend', () => {
+      spark.remove()
+    })
+  }
+
+  setInterval(() => {
+    createSpark()
+  }, 150)
+
+  function moveButtonRandom() {
+    const btnWidth = btn.offsetWidth
+    const btnHeight = btn.offsetHeight
+    const winWidth = window.innerWidth
+    const winHeight = window.innerHeight
+
+    const maxX = winWidth - btnWidth - 20
+    const maxY = winHeight - btnHeight - 20
+
+    const randomX = Math.floor(Math.random() * maxX)
+    const randomY = Math.floor(Math.random() * maxY)
+
+    btn.style.left = randomX + 'px'
+    btn.style.top = randomY + 'px'
+  }
+
+  btn.style.position = 'absolute'
+  btn.style.left = (window.innerWidth / 2 - btn.offsetWidth / 2) + 'px'
+  btn.style.top = (window.innerHeight / 2 - btn.offsetHeight / 2) + 'px'
+
+  btn.addEventListener('click', () => {
+    count++
+    if (count === 5) {
+      img.style.display = 'block'
+      btn.disabled = true
+      btn.textContent = 'Sürpriz Gösterildi'
+      btn.style.cursor = 'default'
+      launchConfetti()
+    } else {
+      moveButtonRandom()
+    }
+  })
+
+  window.addEventListener('resize', () => {
+    if (!btn.disabled) moveButtonRandom()
+  })
+</script>
+
+</body>
+</html>
